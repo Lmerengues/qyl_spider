@@ -9,6 +9,7 @@ import os
 #import urllib'
 import urllib2
 import csv
+import time
 
 from pyquery import PyQuery as pq
 
@@ -46,7 +47,6 @@ def craw_page(page):
     for tr in trs.items():
 
         tr_title = tr(".common")(".title").text()
-
         links = tr(".common")(".title")("a").items()
         link_url = ""
         for link in links:
@@ -67,9 +67,9 @@ def craw_page(page):
 
 def craw_article(inp):
 
-
     title = inp['title']
     url = inp['url']
+
     print url.split("/")[-1]+"------ article:" + url + "------" + title
 
     with open("./dict.csv", 'ab') as myFile:
@@ -150,11 +150,67 @@ def craw(start,end):
         print "-----------   page:"+str(i)+"   -----------"
         craw_page(i)
 
-#save_img("https://p.usxpic.com/2016/upload/image/20170524/52406295533.jpg","test","./")
-#save_2()
 
-#craw_page(2)
-craw(int(sys.argv[1]),int(sys.argv[2]))
+# 最开始要调用下面这个函数
+#craw(int(sys.argv[1]),int(sys.argv[2]))
+
+def craw_page_daily(page):
+    page_url = "http://www.qylbbs4.com/thread/81/" + str(page)
+    response = requests.request("GET", page_url)
+    fo = open("./page/" + str(page) + ".html", "wb")
+    fo.write(response.text)
+    fo.close()
+
+    doc = pq(filename="./page/" + str(page) + ".html")
+    trs = doc("#J_posts_list tr")
+    for tr in trs.items():
+
+        tr_title = tr(".common")(".title").text()
+        links = tr(".common")(".title")("a").items()
+        link_url = ""
+        for link in links:
+            if "read" in link.attr("href"):
+                link_url = link.attr("href")
+        # print tr_title
+        # print link_url
+
+        inp = {}
+        inp['title'] = tr_title
+        inp['url'] = link_url
+
+        if os.path.exists("./img/"+link_url.split("/")[-1]):
+            print link_url.split("/")[-1] + " has been crawed."
+            return 1
+
+        try:
+            craw_article(inp)
+        except:
+            print "--"
+
+    return 0
+
+
+def craw_daily():
+
+    while(1):
+        download_roothtml()
+        root_data = get_root_info()
+        page_num = root_data['page_num']
+        for i in range(1, page_num + 1):
+            print "-----------   page:" + str(i) + "   -----------"
+            flag = craw_page_daily(i)
+            if flag == 1:
+                print "we don't craw and have a rest."
+                break
+
+        time.sleep(30*60) # sleep 30min
+
+craw_daily()
+
+
+
+
+
 
 
 
