@@ -45,21 +45,9 @@ def craw_page(page):
     doc = pq(filename="./page/"+str(page)+".html")
     trs = doc("#J_posts_list tr")
 
-    start = 0
-    if(page == 1):
-        for tr in trs.items():
-            print tr.text()
-            if tr.text() == "普通主题":
-                break
-        start += 1
 
-    if(page == 1):
-        print "start :" + start
-
-    cnt = 0
     for tr in trs.items():
-        if cnt <= start:
-            continue
+
         tr_title = tr(".common")(".title").text()
         links = tr(".common")(".title")("a").items()
         link_url = ""
@@ -78,7 +66,7 @@ def craw_page(page):
         except:
             print "--"
 
-        cnt+= 1
+
 
 
 def craw_article(inp):
@@ -178,9 +166,25 @@ def craw_page_daily(page):
     fo.close()
 
     doc = pq(filename="./page/" + str(page) + ".html")
-    trs = doc("#J_posts_list tr")
-    for tr in trs.items():
 
+    trs = doc("#J_posts_list tr")
+
+    start = 0
+    if (page == 1):
+        for tr in trs.items():
+            print tr.text()
+            if tr.text() == "普通主题":
+                break
+        start += 1
+
+    if (page == 1):
+        print "start :" + start
+
+    cnt = 0
+
+    for tr in trs.items():
+        if cnt <= start:
+            continue
         tr_title = tr(".common")(".title").text()
         links = tr(".common")(".title")("a").items()
         link_url = ""
@@ -202,6 +206,7 @@ def craw_page_daily(page):
             craw_article(inp)
         except:
             print "--"
+        cnt += 1
 
     return 0
 
