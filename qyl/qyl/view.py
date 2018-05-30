@@ -6,6 +6,7 @@ import os
 from django.conf import settings
 from django.http import HttpResponse
 import zipfile
+from django.http import StreamingHttpResponse
 
 img_path = "/home/obe60/qyl_spider/img/"
 
@@ -19,9 +20,15 @@ def hello(request):
     img_dir = img_path + id
     if os.path.exists(img_dir):
         make_zip(img_path,"/home/obe60/"+id+".zip")
-        with open("/home/obe60/"+id+".zip") as f:
-            c = f.read()
-        return HttpResponse(c)
+        print "zip success!"
+
+        the_file_name = "/home/obe60/"+id+".zip"
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
+
+        return response
+
     else:
         return HttpResponse("error occurred!")
 
@@ -36,5 +43,15 @@ def make_zip(source_dir, output_filename):
             arcname = pathfile[pre_len:].strip(os.path.sep)
             zipf.write(pathfile, arcname)
     zipf.close()
+
+
+def file_iterator(file_name, chunk_size=512):
+    with open(file_name) as f:
+        while True:
+            c = f.read(chunk_size)
+            if c:
+                yield c
+            else:
+                break
 
 
