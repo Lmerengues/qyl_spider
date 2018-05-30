@@ -172,18 +172,21 @@ def craw_page_daily(page):
     start = 0
     if (page == 1):
         for tr in trs.items():
-            print tr.text()
+            #print tr.text()
             if tr.text() == "普通主题":
                 break
-        start += 1
+            start += 1
 
     if (page == 1):
-        print "start :" + start
+        print "start :" + str(start)
 
     cnt = 0
-
+    flag  = 0 
     for tr in trs.items():
+        if flag == 5:
+            return 1
         if cnt <= start:
+            cnt += 1
             continue
         tr_title = tr(".common")(".title").text()
         links = tr(".common")(".title")("a").items()
@@ -200,7 +203,11 @@ def craw_page_daily(page):
 
         if os.path.exists("./img/"+link_url.split("/")[-1]):
             print link_url.split("/")[-1] + " has been crawed."
-            return 1
+            #return 1
+	    flag += 1
+            cnt += 1
+            continue
+	#if flag == 5
 
         try:
             craw_article(inp)
@@ -217,12 +224,15 @@ def craw_daily():
         download_roothtml()
         root_data = get_root_info()
         page_num = root_data['page_num']
+        
+        flag = 0
         for i in range(1, int(page_num) + 1):
             print "-----------   page:" + str(i) + "   -----------"
             flag = craw_page_daily(i)
             if flag == 1:
                 print "we don't craw and have a rest."
-                break
+                flag = 0
+  		break
 
         time.sleep(30*60) # sleep 30min
 
