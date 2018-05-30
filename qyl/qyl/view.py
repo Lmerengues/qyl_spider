@@ -12,6 +12,10 @@ img_path = "/home/obe60/qyl_spider/img/"
 
 def hello(request):
 
+    dict = {}
+    for line in open("/home/obe60/qyl_spider/dict.csv"):
+        dict[line.split(",")[0]] = line.split(",")[1]
+
     try:
         id = request.GET["id"]
     except:
@@ -25,7 +29,7 @@ def hello(request):
         the_file_name = "/home/obe60/"+id+".zip"
         response = StreamingHttpResponse(file_iterator(the_file_name))
         response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(dict[id]+".zip")
 
         return response
 
