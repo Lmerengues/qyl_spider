@@ -19,7 +19,7 @@ def hello(request):
 
     img_dir = img_path + id
     if os.path.exists(img_dir):
-        make_zip(img_path,"/home/obe60/"+id+".zip")
+        make_zip(img_path+id+"/","/home/obe60/"+id+".zip")
         print "zip success!"
 
         the_file_name = "/home/obe60/"+id+".zip"
